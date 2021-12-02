@@ -48,7 +48,7 @@ exports.handler = (event, context, callback) => {
             from: message.from,
             recipes: message.recipes
           },
-          TableName: "csye6225"
+          TableName: "dynamo"
         };
 
         dynamo.put(params, function(error, data) {
