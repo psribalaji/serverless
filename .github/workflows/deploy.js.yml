@@ -39,4 +39,4 @@ jobs:
 
       - name: Update lambdaFunction code
         run: |
-          aws lambda update-function-code --function-name userAddLambda --s3-bucket ${{secrets.CODEDEPLOY_BUCKET}} --s3-key ${{ env.ARTIFACT_NAME }}.zip
+          aws lambda update-function-code --function-name userAddLamda --s3-bucket ${{secrets.CODEDEPLOY_BUCKET}} --s3-key ${{ env.ARTIFACT_NAME }}.zip
