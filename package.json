@@ -18,6 +18,7 @@
   "homepage": "https://github.com/sribalaji95/serverless#readme",
   "dependencies": {
     "aws-sdk": "^2.1041.0",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "uuidv4": "^6.2.12"
   }
 }
