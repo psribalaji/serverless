@@ -5,52 +5,38 @@ on:
   push:
     branches: [ main ]
 
+env:
+  ARTIFACT_NAME: userAddLamda
+  AWS_REGION: us-east-1
+  
 jobs:
-  build:
+  lamda:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [12.x]
+
     steps:
-    - uses: actions/checkout@v2
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
-      with:
-        node-version: ${{ matrix.node-version }}
-    - run: npm i --unsafe-perm
-    - run: npm run build --if-present
-    # - run: npx nodemon server.js
-    #- run: npm test
-    - name: Build Deployment Artifact
-      run: | 
-        mkdir codedeploy_artifact
-        zip -r build_artifact .
-        pwd
-        mv build_artifact.zip codedeploy_artifact
-        cd codedeploy_artifact
-    - name: Configure AWS credentials from Test account
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{secrets.AWS_REGION}}
-    - name: Push artifact to s3
-      run: |
-        aws s3 sync ./codedeploy_artifact s3://${{secrets.CODEDEPLOY_BUCKET}}
-        echo ${{secrets.CODEDEPLOY_BUCKET}}
-    - name: CodeDeploy API call
-      run: |
-        output=$(aws deploy create-deployment \
-          --application-name csye6225-webapp \
-          --deployment-config-name CodeDeployDefault.AllAtOnce \
-          --deployment-group-name csye6225-webapp-deployment \
-          --description "CSYE6255 - CodeDeploy" \
-          --s3-location bucket=${{secrets.CODEDEPLOY_BUCKET}},key=lambda_function.zip,bundleType=zip \
-          --region ${{secrets.AWS_REGION}} \
-          --output json)
-          depId=$(echo $output | jq -r '.deploymentId')
-          aws deploy wait deployment-successful --deployment-id $depId
-      env:
-          AWS_REGION: ${{ secrets.AWS_REGION }}
-          AWS_CODEDEPLOY_BUCKET: ${{secrets.CODEDEPLOY_BUCKET}}
-          
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Setup NodeJS
+        uses: actions/setup-node@v2
+        with:
+          node-version: "14"
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID}}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY}}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Build Deployment artifacts
+        run: |
+          zip -r ${{ env.ARTIFACT_NAME }} index.js
+
+      - name: Copy Artifacts to S3
+        run: |
+          aws s3 cp ${{ env.ARTIFACT_NAME }}.zip s3://${{secrets.S3_BUCKET}}
+
+      - name: Update lambdaFunction code
+        run: |
+          aws lambda update-function-code --function-name userAddLambda --s3-bucket ${{secrets.S3_BUCKET}} --s3-key ${{ env.ARTIFACT_NAME }}.zip
