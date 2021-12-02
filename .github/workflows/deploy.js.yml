@@ -8,7 +8,7 @@ on:
 env:
   ARTIFACT_NAME: userAddLamda
   AWS_REGION: us-east-1
-  
+
 jobs:
   lamda:
     runs-on: ubuntu-latest
@@ -35,8 +35,8 @@ jobs:
 
       - name: Copy Artifacts to S3
         run: |
-          aws s3 cp ${{ env.ARTIFACT_NAME }}.zip s3://${{secrets.S3_BUCKET}}
+          aws s3 cp ${{ env.ARTIFACT_NAME }}.zip s3://${{secrets.CODEDEPLOY_BUCKET}}
 
       - name: Update lambdaFunction code
         run: |
-          aws lambda update-function-code --function-name userAddLambda --s3-bucket ${{secrets.S3_BUCKET}} --s3-key ${{ env.ARTIFACT_NAME }}.zip
+          aws lambda update-function-code --function-name userAddLambda --s3-bucket ${{secrets.CODEDEPLOY_BUCKET}} --s3-key ${{ env.ARTIFACT_NAME }}.zip
