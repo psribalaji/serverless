@@ -38,7 +38,7 @@ ddb.getItem(queryParams, (err, data) => {
       Body: { /* required */
         Html: {
          Charset: "UTF-8",
-         Data: "http://prod.csye6225.me/v1/verifyUserEmail?email="+event.Records[0].Sns.Message+"&token="+t
+         Data: "https://prod.csye6225.me/v1/verifyUserEmail?email="+event.Records[0].Sns.Message+"&token="+t
         },
         Text: {
          Charset: "UTF-8",
